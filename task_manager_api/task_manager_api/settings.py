@@ -1,5 +1,6 @@
 from pathlib import Path
 from os import getenv
+from datetime import timedelta
 
 from dotenv import load_dotenv
 
@@ -8,7 +9,15 @@ load_dotenv()
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+    ),
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ]
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=int(getenv('ACCESS_TOKEN_LIFETIME', 30))),
+    'ROTATE_REFRESH_TOKENS': True,
 }
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -31,8 +40,13 @@ ALLOWED_HOSTS = [getenv('APP_HOST')]
 
 INSTALLED_APPS = [
     'auth.apps.AuthConfig',
+
     'rest_framework',
     'rest_framework_simplejwt',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'django.contrib.sites',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -125,3 +139,19 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+SITE_ID = 1
+
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+
+AUTHENTICATION_BACKENDS = [
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+
+    # `allauth` specific authentication methods, such as login by e-mail
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
