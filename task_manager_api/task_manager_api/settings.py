@@ -40,6 +40,7 @@ ALLOWED_HOSTS = [getenv('APP_HOST')]
 
 INSTALLED_APPS = [
     'auth.apps.AuthConfig',
+    'api.apps.ApiConfig',
 
     'rest_framework',
     'rest_framework_simplejwt',
