@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'auth.apps.AuthConfig',
     'api.apps.ApiConfig',
 
+    'django_filters',
     'rest_framework',
     'rest_framework_simplejwt',
     'allauth',
