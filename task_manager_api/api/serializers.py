@@ -1,125 +1,7 @@
+from .utils import remove_list_serializer_fields
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import Task, Comment, Sprint, Dashboard
-
-
-class DashboardSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Dashboard
-        fields = [
-            'id',
-            'title',
-            'description',
-            'created_date',
-            'updated_date',
-            'members',
-        ]
-        read_only_fields = ['id', 'created_date', 'updated_date']
-
-    members = serializers.SerializerMethodField()
-
-    def get_members(self, obj):
-        return list(map(lambda member: member.username, obj.members.all()))
-
-
-class CreateUpdateDashboardSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Dashboard
-        fields = [
-            'id',
-            'title',
-            'description',
-            'created_date',
-            'updated_date',
-            'members',
-        ]
-        read_only_fields = ['id', 'created_date', 'updated_date', 'members']
-
-    members = serializers.ListField(
-        child=serializers.CharField(min_length=1, max_length=150), write_only=True, allow_empty=False)
-
-    def to_representation(self, instance):
-        ret = super().to_representation(instance)
-
-        if instance.members:
-            username_list = []
-
-            for user in instance.members.all():
-                username_list.append(user.username)
-
-            ret['members'] = username_list
-
-        return ret
-
-
-class ListCreateSprintSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Sprint
-        fields = [
-            'id',
-            'title',
-            'description',
-            'dashboard',
-            'created_date',
-            'updated_date',
-            'end_date',
-        ]
-        read_only_fields = ['id',
-                            'created_date', 'updated_date']
-
-
-class RetrieveUpdateDestroySprintSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Sprint
-        fields = [
-            'id',
-            'title',
-            'description',
-            'created_date',
-            'updated_date',
-            'end_date',
-            'tasks',
-        ]
-        read_only_fields = ['id', 'end_date',
-                            'created_date', 'updated_date', 'tasks']
-
-    tasks = serializers.SerializerMethodField()
-
-    def get_tasks(self, obj):
-        tasks = TaskSerializer(obj.task_set.all(), many=True)
-        return tasks.data
-
-
-class TaskSerializer(serializers.ModelSerializer):
-    author = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Task
-        fields = ['id', 'title', 'description', 'status',
-                  'created_date', 'updated_date', 'id', 'author', 'sprint']
-        read_only_fields = ['created_date', 'updated_date', 'id']
-
-    def get_author(self, obj):
-        return obj.author.username if obj.author else obj.author
-
-
-class CreateTaskSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Task
-        fields = ['id', 'title', 'description', 'status',
-                  'created_date', 'updated_date', 'author', 'assigned_to', 'sprint']
-        read_only_fields = ['id', 'created_date', 'updated_date']
-
-    def to_representation(self, instance):
-        ret = super().to_representation(instance)
-
-        if instance.assigned_to:
-            ret['assigned_to'] = instance.assigned_to.username
-
-        if instance.author:
-            ret['author'] = instance.author.username
-
-        return ret
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -135,10 +17,109 @@ class CommentSerializer(serializers.ModelSerializer):
         return ret
 
     def to_internal_value(self, data):
-        if not int(data['author']):
-            user = User.objects.get(username=data['author'])
-            data['author'] = user.id
+        user = User.objects.get(username=data['author'])
+        data['author'] = user.id
 
         ret = super().to_internal_value(data)
+
+        return ret
+
+
+class TaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Task
+        fields = ['id', 'title', 'description', 'status',
+                  'created_date', 'updated_date', 'author', 'assigned_to', 'sprint', 'comments', 'dashboard']
+        read_only_fields = ['created_date',
+                            'updated_date', 'id', 'comments']
+
+    comments = CommentSerializer(
+        source='comment_set', many=True, read_only=True)
+
+    def __init__(self, *args, **kwargs):
+        super(TaskSerializer, self).__init__(*args, **kwargs)
+        remove_list_serializer_fields(self, fields=['comments'], **kwargs)
+
+    def to_internal_value(self, data):
+
+        for key, username in data.items():
+            if key in ['author', 'assigned_to']:
+                data[key] = User.objects.get(username=username).id
+
+        ret = super().to_internal_value(data)
+
+        return ret
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+
+        if instance.assigned_to:
+            ret['assigned_to'] = instance.assigned_to.username
+
+        if instance.author:
+            ret['author'] = instance.author.username
+
+        return ret
+
+
+class SprintSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Sprint
+        fields = [
+            'id',
+            'title',
+            'description',
+            'created_date',
+            'updated_date',
+            'end_date',
+            'dashboard',
+            'tasks',
+        ]
+        read_only_fields = ['id', 'created_date', 'updated_date', 'tasks']
+
+    tasks = TaskSerializer(source='task_set', many=True, read_only=True)
+
+    def __init__(self, *args, **kwargs):
+        super(SprintSerializer, self).__init__(*args, **kwargs)
+        remove_list_serializer_fields(self, fields=['tasks'], **kwargs)
+
+
+class DashboardSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Dashboard
+        fields = [
+            'id',
+            'title',
+            'description',
+            'created_date',
+            'updated_date',
+            'members',
+            'sprints'
+        ]
+        read_only_fields = ['id', 'created_date', 'updated_date', 'sprints']
+
+    sprints = SprintSerializer(
+        source='sprint_set', many=True, read_only=True)
+
+    members = serializers.ListField(
+        child=serializers.CharField(min_length=1, max_length=150), write_only=True, allow_empty=False)
+
+    def __init__(self, *args, **kwargs):
+        super(DashboardSerializer, self).__init__(*args, **kwargs)
+        remove_list_serializer_fields(self, fields=['sprints'], **kwargs)
+
+    def to_internal_value(self, data):
+        if 'members' in data and data['members']:
+            data['members'] = list(map(lambda username: User.objects.get(
+                username=username).id, data['members']))
+
+        return super().to_internal_value(data)
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+
+        if instance.members:
+            ret['members'] = list(
+                map(lambda user: user.username, instance.members.all()))
 
         return ret

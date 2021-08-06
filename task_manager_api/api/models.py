@@ -33,6 +33,7 @@ class Task(models.Model):
         User, on_delete=models.DO_NOTHING, related_name='assigned_tasks', default=None, null=True)
     sprint = models.ForeignKey(
         Sprint, on_delete=models.CASCADE, null=True)
+    dashboard = models.ForeignKey(Dashboard, on_delete=models.CASCADE)
 
     def __str__(self):
         for key, value in TASK_STATUS_CHOICES:
