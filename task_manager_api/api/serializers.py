@@ -43,7 +43,7 @@ class TaskSerializer(serializers.ModelSerializer):
     def to_internal_value(self, data):
 
         for key, username in data.items():
-            if key in ['author', 'assigned_to']:
+            if key in ['author', 'assigned_to'] and username:
                 data[key] = User.objects.get(username=username).id
 
         ret = super().to_internal_value(data)

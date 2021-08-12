@@ -54,7 +54,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.static',
+    'django.contrib.staticfiles',
     'storages',
 ]
 
@@ -169,13 +169,12 @@ if USE_S3:
     # s3 private media settings
     PRIVATE_MEDIA_LOCATION = 'private'
     PRIVATE_FILE_STORAGE = 'task_manager_api.storage_backends.PrivateMediaStorage'
+    STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 else:
     STATIC_URL = '/static/'
     STATIC_ROOT = os.path.join(BASE_DIR, 'static')
     MEDIA_URL = '/media/'
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 
 
 # Default primary key field type
