@@ -35,6 +35,9 @@ DEBUG = int(os.getenv('DEBUG', default=0))
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(' ')
 
+CORS_ORIGIN_ALLOW_ALL = int(os.getenv('CORS_ORIGIN_ALLOW_ALL', default=1))
+
+CORS_ORIGIN_WHITELIST = os.getenv('CORS_ORIGIN_WHITELIST').split(' ')
 
 # Application definition
 
@@ -42,6 +45,7 @@ INSTALLED_APPS = [
     'auth.apps.AuthConfig',
     'api.apps.ApiConfig',
 
+    'corsheaders',
     'django_filters',
     'rest_framework',
     'rest_framework_simplejwt',
@@ -58,6 +62,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
