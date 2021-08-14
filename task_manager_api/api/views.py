@@ -1,5 +1,4 @@
 from .permissions import IsAuthor, IsMemberOfDashboard
-from django.contrib.auth.models import User
 from rest_framework import generics, viewsets, status
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.parsers import JSONParser
@@ -36,8 +35,8 @@ class CreateSprintView(generics.CreateAPIView):
 
     def create(self, request):
         data = JSONParser().parse(request)
-        data['end_date'] = str(datetime.datetime.now() +
-                               datetime.timedelta(weeks=2))
+        data['end_date'] = str(
+            datetime.datetime.now() + datetime.timedelta(weeks=2))
 
         serializer = self.get_serializer(data=data)
 

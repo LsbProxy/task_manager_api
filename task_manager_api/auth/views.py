@@ -1,6 +1,6 @@
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
-from .serializers import UserLoginSerializer, RegisterSerializer, UserLoginSerializer
+from .serializers import UserLoginSerializer, RegisterSerializer
 from rest_framework.permissions import AllowAny
 from rest_framework import generics, views, status
 from rest_framework_simplejwt.tokens import RefreshToken

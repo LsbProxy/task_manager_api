@@ -5,7 +5,7 @@ services:
         build:
             context: ./task_manager_api
             dockerfile: Dockerfile.prod
-        image: 512550089270.dkr.ecr.eu-central-1.amazonaws.com/django-ec2:web
+        image: 512550089270.dkr.ecr.eu-central-1.amazonaws.com/task-manager-api:web
         command: gunicorn task_manager_api.wsgi:application --bind 0.0.0.0:8000
         volumes:
             - static_volume:/home/app/web/static
@@ -17,7 +17,7 @@ services:
     nginx-proxy:
         container_name: nginx-proxy
         build: nginx
-        image: 512550089270.dkr.ecr.eu-central-1.amazonaws.com/django-ec2:nginx-proxy
+        image: 512550089270.dkr.ecr.eu-central-1.amazonaws.com/task-manager-api:nginx-proxy
         restart: always
         ports:
             - 443:443

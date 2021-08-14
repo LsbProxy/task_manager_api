@@ -16,5 +16,5 @@ def remove_list_serializer_fields(self, fields, **kwargs):
         if modify_fields:
             for field in fields:
                 self.fields.pop(field)
-    except:
+    except Exception:
         return
