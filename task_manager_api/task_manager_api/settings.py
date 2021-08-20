@@ -35,9 +35,11 @@ DEBUG = int(os.getenv('DEBUG', default=0))
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(' ')
 
-CORS_ORIGIN_ALLOW_ALL = int(os.getenv('CORS_ORIGIN_ALLOW_ALL', default=1))
+CORS_ORIGIN_ALLOW_ALL = bool(
+    int(os.getenv('CORS_ORIGIN_ALLOW_ALL', default=1)))
 
-CORS_ORIGIN_WHITELIST = os.getenv('CORS_ORIGIN_WHITELIST').split(' ')
+if not CORS_ORIGIN_ALLOW_ALL:
+    CORS_ORIGIN_WHITELIST = os.getenv('CORS_ORIGIN_WHITELIST').split(' ')
 
 # Application definition
 

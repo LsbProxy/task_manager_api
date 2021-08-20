@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
-from .serializers import UserLoginSerializer, RegisterSerializer
-from rest_framework.permissions import AllowAny
+from .serializers import UserLoginSerializer, RegisterSerializer, UserSerializer
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import generics, views, status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
@@ -36,3 +36,9 @@ class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = (AllowAny,)
     serializer_class = RegisterSerializer
+
+
+class UserView(generics.ListAPIView):
+    queryset = User.objects.all()
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserSerializer
