@@ -11,13 +11,6 @@ ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
 CORS_ORIGIN_ALLOW_ALL=1
 EMAIL_HOST_USER=example@email.com
 EMAIL_HOST_PASSWORD=email_password
-SQL_ENGINE=django.db.backends.postgresql
-SQL_DATABASE=app_dev
-SQL_USER=user
-SQL_PASSWORD=password
-SQL_HOST=db
-SQL_PORT=5432
-DATABASE=postgres
 
 ## 1.b. - Example for running the production version:
 
